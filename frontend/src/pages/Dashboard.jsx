@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
     LogOut, User, Sun, Moon, Plus, Compass, Settings,
@@ -115,10 +116,10 @@ const Dashboard = () => {
                             <Compass size={18} />
                             Browse Skills
                         </button>
-                        <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-medium text-gray-700 shadow-sm backdrop-blur-md transition hover:bg-white dark:border-white/10 dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/80">
+                        <Link to="/profile" className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-medium text-gray-700 shadow-sm backdrop-blur-md transition hover:bg-white dark:border-white/10 dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/80">
                             <Settings size={18} />
                             Profile
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
