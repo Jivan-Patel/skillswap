@@ -110,11 +110,10 @@ function Signup() {
 
         {alert.message && (
           <div
-            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
-              alert.type === 'success'
+            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${alert.type === 'success'
                 ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
                 : 'border-rose-400/40 bg-rose-500/10 text-rose-200'
-            }`}
+              }`}
           >
             {alert.message}
           </div>
