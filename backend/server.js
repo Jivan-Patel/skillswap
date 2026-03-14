@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const skillRoutes = require('./routes/skillRoutes');
+const requestRoutes = require('./routes/requestRoutes');
 
 // Load env vars
 dotenv.config();
@@ -20,6 +22,8 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/skills', skillRoutes);
+app.use('/api/requests', requestRoutes);
 
 // Simple test route
 app.get('/', (req, res) => {
