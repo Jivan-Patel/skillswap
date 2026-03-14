@@ -1,6 +1,9 @@
-import { MapPin, User as UserIcon } from 'lucide-react';
+import { MapPin, User as UserIcon, Layers, BookOpen } from 'lucide-react';
 
 const ProfileHeader = ({ profile, onEditClick }) => {
+    const offeredCount = profile.skillsOffered?.length || 0;
+    const wantedCount = profile.skillsWanted?.length || 0;
+
     return (
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
             <div className="flex items-center gap-6">
@@ -11,13 +14,27 @@ const ProfileHeader = ({ profile, onEditClick }) => {
                     <h1 className="text-3xl font-bold text-white mb-1">{profile.name}</h1>
                     <p className="text-slate-400 mb-3">{profile.email}</p>
 
-                    <div className="flex flex-wrap gap-4 text-sm">
+                    {/* Location Badge */}
+                    <div className="flex flex-wrap gap-3 mb-3">
                         {profile.location && (
-                            <div className="flex items-center gap-1.5 text-slate-300 bg-slate-800/50 px-3 py-1 rounded-full border border-white/5">
-                                <MapPin size={14} className="text-emerald-400" />
+                            <div className="flex items-center gap-1.5 bg-slate-700/40 text-gray-300 px-3 py-1 rounded-full text-sm border border-white/5">
+                                <span className="text-base leading-none">📍</span>
                                 {profile.location}
                             </div>
                         )}
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="flex items-center gap-4 text-xs text-slate-400">
+                        <div className="flex items-center gap-1.5">
+                            <Layers size={13} className="text-emerald-400" />
+                            <span>Skills Offered: <span className="text-white font-semibold">{offeredCount}</span></span>
+                        </div>
+                        <span className="text-slate-600">|</span>
+                        <div className="flex items-center gap-1.5">
+                            <BookOpen size={13} className="text-sky-400" />
+                            <span>Skills Wanted: <span className="text-white font-semibold">{wantedCount}</span></span>
+                        </div>
                     </div>
                 </div>
             </div>

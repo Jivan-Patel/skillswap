@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 
+const levels = ['Beginner', 'Intermediate', 'Advanced'];
+
 const AddSkillModal = ({ title, onClose, onSubmit }) => {
     const [skill, setSkill] = useState('');
+    const [level, setLevel] = useState('Beginner');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (skill.trim()) {
-            onSubmit(skill.trim());
+            onSubmit(skill.trim(), level);
         }
     };
 
@@ -28,8 +31,33 @@ const AddSkillModal = ({ title, onClose, onSubmit }) => {
                         value={skill}
                         onChange={e => setSkill(e.target.value)}
                         placeholder="e.g. React.js, Python, UI Design"
-                        className="w-full rounded-xl border border-white/10 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 mb-6 transition"
+                        className="w-full rounded-xl border border-white/10 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 mb-4 transition"
                     />
+
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Skill Level</label>
+                        <div className="flex gap-2">
+                            {levels.map((l) => (
+                                <button
+                                    key={l}
+                                    type="button"
+                                    onClick={() => setLevel(l)}
+                                    className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium border transition-all duration-200 ${
+                                        level === l
+                                            ? l === 'Advanced'
+                                                ? 'bg-teal-500/20 text-teal-400 border-teal-500/40'
+                                                : l === 'Intermediate'
+                                                ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                                                : 'bg-slate-600/30 text-slate-300 border-slate-500/40'
+                                            : 'bg-slate-800/50 text-slate-400 border-white/10 hover:bg-slate-700/50'
+                                    }`}
+                                >
+                                    {l}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="flex justify-end gap-3">
                         <button
                             type="button"

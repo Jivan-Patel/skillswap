@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, ArrowLeft } from 'lucide-react';
@@ -8,15 +8,16 @@ import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileForm from '../components/profile/ProfileForm';
 import SkillsOffered from '../components/profile/SkillsOffered';
 import SkillsWanted from '../components/profile/SkillsWanted';
+import Toast from '../components/profile/Toast';
 
 const Profile = () => {
-    const { user, login, logout } = useAuth(); // We'll manually update local context via login if name changes
+    const { user, login, logout } = useAuth();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [toast, setToast] = useState(null);
 
-    // Ensure email is passed for backend requests to identify user
     const config = {
         headers: {
             'user-email': user?.email
@@ -48,7 +49,6 @@ const Profile = () => {
             setProfile(data);
             setIsEditing(false);
 
-            // Sync with local storage if name was changed
             if (data.name !== user.name) {
                 login({ ...user, name: data.name });
             }
@@ -57,28 +57,33 @@ const Profile = () => {
         }
     };
 
-    const handleAddSkillOffered = async (skill) => {
+    const handleAddSkillOffered = async (skill, level) => {
         try {
-            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-offered', { skill }, config);
+            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-offered', { skill, level }, config);
             setProfile(data);
         } catch (err) {
             alert('Failed to add skill.');
         }
     };
 
-    const handleAddSkillWanted = async (skill) => {
+    const handleAddSkillWanted = async (skill, level) => {
         try {
-            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-wanted', { skill }, config);
+            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-wanted', { skill, level }, config);
             setProfile(data);
         } catch (err) {
             alert('Failed to add skill.');
         }
     };
+
+    const showToast = useCallback((message) => {
+        setToast(message);
+    }, []);
 
     const handleRemoveSkill = async (skillName) => {
         try {
             const { data } = await axios.delete(`http://localhost:5000/api/users/remove-skill/${encodeURIComponent(skillName)}`, config);
             setProfile(data);
+            showToast('Skill removed successfully');
         } catch (err) {
             alert('Failed to remove skill.');
         }
@@ -171,6 +176,14 @@ const Profile = () => {
                     />
                 </div>
             </main>
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </div>
     );
 };

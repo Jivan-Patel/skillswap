@@ -48,12 +48,14 @@ exports.updateUserProfile = async (req, res) => {
 exports.addSkillOffered = async (req, res) => {
     try {
         const user = await getUserFromHeader(req);
-        const { skill } = req.body;
+        const { skill, level } = req.body;
 
         if (!skill) return res.status(400).json({ message: 'Skill name is required' });
 
-        if (!user.skillsOffered.includes(skill)) {
-            user.skillsOffered.push(skill);
+        // Check if skill already exists by name
+        const exists = user.skillsOffered.some(s => s.name === skill);
+        if (!exists) {
+            user.skillsOffered.push({ name: skill, level: level || 'Beginner' });
             await user.save();
         }
 
@@ -68,12 +70,14 @@ exports.addSkillOffered = async (req, res) => {
 exports.addSkillWanted = async (req, res) => {
     try {
         const user = await getUserFromHeader(req);
-        const { skill } = req.body;
+        const { skill, level } = req.body;
 
         if (!skill) return res.status(400).json({ message: 'Skill name is required' });
 
-        if (!user.skillsWanted.includes(skill)) {
-            user.skillsWanted.push(skill);
+        // Check if skill already exists by name
+        const exists = user.skillsWanted.some(s => s.name === skill);
+        if (!exists) {
+            user.skillsWanted.push({ name: skill, level: level || 'Beginner' });
             await user.save();
         }
 
@@ -90,9 +94,9 @@ exports.removeSkill = async (req, res) => {
         const user = await getUserFromHeader(req);
         const { skillName } = req.params;
 
-        // Remove from both arrays if it exists
-        user.skillsOffered = user.skillsOffered.filter(s => s !== skillName);
-        user.skillsWanted = user.skillsWanted.filter(s => s !== skillName);
+        // Remove from both arrays by matching the name field
+        user.skillsOffered = user.skillsOffered.filter(s => s.name !== skillName);
+        user.skillsWanted = user.skillsWanted.filter(s => s.name !== skillName);
 
         await user.save();
 
