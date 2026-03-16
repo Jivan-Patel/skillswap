@@ -4,42 +4,53 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
     LogOut, User, Sun, Moon, Plus, Compass, Settings,
-    BookOpen, Target, Send, Inbox, Edit2, Trash2
+    BookOpen, Target, Send, Inbox
 } from 'lucide-react';
+import axios from 'axios';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const { isDarkMode, toggleTheme } = useTheme();
     const [activeTab, setActiveTab] = useState('incoming');
 
-    // Simple mock data for presentation
+    const [incomingRequests, setIncomingRequests] = useState([]);
+    const [outgoingRequests, setOutgoingRequests] = useState([]);
+    const [fullProfile, setFullProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            if (!user?.email) return;
+            try {
+                const config = { headers: { 'user-email': user.email } };
+                // Fetch both profile and requests concurrently
+                const [profileRes, requestsRes] = await Promise.all([
+                    axios.get('http://localhost:5000/api/users/me', config),
+                    axios.get('http://localhost:5000/api/requests', config)
+                ]);
+                
+                setFullProfile(profileRes.data);
+                setIncomingRequests(requestsRes.data.incomingRequests || []);
+                setOutgoingRequests(requestsRes.data.outgoingRequests || []);
+            } catch (err) {
+                console.error("Failed to load dashboard data", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, [user?.email]);
+
+    // Dynamic stats based on full profile and fetched requests
     const stats = [
-        { label: 'Skills Offered', value: '3', icon: BookOpen, color: 'text-emerald-400' },
-        { label: 'Skills Wanted', value: '2', icon: Target, color: 'text-sky-400' },
-        { label: 'Requests Sent', value: '5', icon: Send, color: 'text-purple-400' },
-        { label: 'Requests Received', value: '8', icon: Inbox, color: 'text-rose-400' },
+        { label: 'Skills Offered', value: (fullProfile?.skillsOffered?.length || 0).toString(), icon: BookOpen, color: 'text-emerald-400' },
+        { label: 'Skills Wanted', value: (fullProfile?.skillsWanted?.length || 0).toString(), icon: Target, color: 'text-sky-400' },
+        { label: 'Requests Sent', value: outgoingRequests.length.toString(), icon: Send, color: 'text-purple-400' },
+        { label: 'Requests Received', value: incomingRequests.length.toString(), icon: Inbox, color: 'text-rose-400' },
     ];
 
-    const skillsOffered = [
-        { id: 1, name: 'React.js', level: 'Advanced' },
-        { id: 2, name: 'UI/UX Design', level: 'Intermediate' },
-        { id: 3, name: 'Node.js', level: 'Beginner' },
-    ];
-
-    const skillsWanted = [
-        { id: 1, name: 'Python Data Science', level: 'Beginner' },
-        { id: 2, name: 'AWS Cloud', level: 'Intermediate' },
-    ];
-
-    const incomingRequests = [
-        { id: 1, name: 'Alex Johnson', skill: 'React.js', status: 'Pending' },
-        { id: 2, name: 'Maria Garcia', skill: 'UI/UX Design', status: 'Accepted' },
-    ];
-
-    const outgoingRequests = [
-        { id: 1, name: 'David Smith', skill: 'Python Data Science', status: 'Pending' },
-    ];
-
+    const skillsOffered = fullProfile?.skillsOffered || [];
+    const skillsWanted = fullProfile?.skillsWanted || [];
 
     return (
         <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'dark bg-slate-950' : 'bg-gray-50'}`}>
@@ -99,10 +110,10 @@ const Dashboard = () => {
                         <p className="mt-2 text-gray-600 dark:text-gray-400">Here's what's happening with your skills today.</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-emerald-700 dark:from-emerald-400 dark:to-cyan-400 dark:text-slate-950 dark:hover:brightness-110">
+                        <Link to="/profile" className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-emerald-700 dark:from-emerald-400 dark:to-cyan-400 dark:text-slate-950 dark:hover:brightness-110">
                             <Plus size={18} />
                             Add Skill
-                        </button>
+                        </Link>
                         <Link to="/marketplace" className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-medium text-gray-700 shadow-sm backdrop-blur-md transition hover:bg-white dark:border-white/10 dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/80">
                             <Compass size={18} />
                             Browse Skills
@@ -144,11 +155,11 @@ const Dashboard = () => {
                         <div className="rounded-2xl border border-gray-200 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/60">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Skills Offered</h2>
-                                <button className="text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">View all</button>
+                                <Link to="/profile" className="text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">View all</Link>
                             </div>
                             <div className="grid gap-4 sm:grid-cols-2">
-                                {skillsOffered.map(skill => (
-                                    <div key={skill.id} className="group relative rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-emerald-200 dark:border-white/5 dark:bg-slate-800/50 dark:hover:border-emerald-500/50">
+                                {skillsOffered.length > 0 ? skillsOffered.map((skill, idx) => (
+                                    <div key={idx} className="group relative rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-emerald-200 dark:border-white/5 dark:bg-slate-800/50 dark:hover:border-emerald-500/50">
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <h3 className="font-semibold text-gray-900 dark:text-white">{skill.name}</h3>
@@ -156,17 +167,9 @@ const Dashboard = () => {
                                                     {skill.level}
                                                 </span>
                                             </div>
-                                            <div className="flex opacity-0 transition group-hover:opacity-100 gap-1">
-                                                <button className="p-1.5 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button className="p-1.5 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
                                         </div>
                                     </div>
-                                ))}
+                                )) : <p className="text-sm text-gray-500 col-span-2">No skills offered yet.</p>}
                             </div>
                         </div>
 
@@ -174,17 +177,17 @@ const Dashboard = () => {
                         <div className="rounded-2xl border border-gray-200 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/60">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Skills Wanted</h2>
-                                <button className="text-sm font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300">View all</button>
+                                <Link to="/profile" className="text-sm font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300">View all</Link>
                             </div>
                             <div className="grid gap-4 sm:grid-cols-2">
-                                {skillsWanted.map(skill => (
-                                    <div key={skill.id} className="relative rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-slate-800/50">
+                                {skillsWanted.length > 0 ? skillsWanted.map((skill, idx) => (
+                                    <div key={idx} className="relative rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-slate-800/50">
                                         <h3 className="font-semibold text-gray-900 dark:text-white">{skill.name}</h3>
                                         <span className="mt-2 inline-flex items-center rounded-full bg-sky-50 px-2 py-1 text-xs font-medium text-sky-700 ring-1 ring-inset ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-500/30">
                                             Desired: {skill.level}
                                         </span>
                                     </div>
-                                ))}
+                                )) : <p className="text-sm text-gray-500 col-span-2">No skills requested yet.</p>}
                             </div>
                         </div>
                     </div>
@@ -219,33 +222,35 @@ const Dashboard = () => {
                             {/* Request List */}
                             <div className="flex-1 space-y-4">
                                 {activeTab === 'incoming' ? (
-                                    incomingRequests.length > 0 ? incomingRequests.map(req => (
-                                        <div key={req.id} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-slate-800/50">
+                                    incomingRequests.length > 0 ? incomingRequests.slice(0, 4).map(req => (
+                                        <div key={req._id} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-slate-800/50">
                                             <div>
-                                                <p className="font-medium text-gray-900 dark:text-white text-sm">{req.name}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">wants to learn <span className="text-emerald-600 dark:text-emerald-400">{req.skill}</span></p>
+                                                <p className="font-medium text-gray-900 dark:text-white text-sm">{req.senderId?.name || 'Unknown User'}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">wants to learn <span className="text-emerald-600 dark:text-emerald-400">{req.skillId?.title || 'a skill'}</span></p>
                                             </div>
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-md ${req.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-md ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                                : req.status === 'rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400'
                                                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
                                                 }`}>
-                                                {req.status}
+                                                {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1) : ''}
                                             </span>
                                         </div>
-                                    )) : <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No incoming requests.</p>
+                                    )) : <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">{loading ? 'Loading...' : 'No incoming requests.'}</p>
                                 ) : (
-                                    outgoingRequests.length > 0 ? outgoingRequests.map(req => (
-                                        <div key={req.id} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-slate-800/50">
+                                    outgoingRequests.length > 0 ? outgoingRequests.slice(0, 4).map(req => (
+                                        <div key={req._id} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-slate-800/50">
                                             <div>
-                                                <p className="font-medium text-gray-900 dark:text-white text-sm">{req.name}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">can teach <span className="text-sky-600 dark:text-sky-400">{req.skill}</span></p>
+                                                <p className="font-medium text-gray-900 dark:text-white text-sm">{req.receiverId?.name || 'Unknown User'}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">can teach <span className="text-sky-600 dark:text-sky-400">{req.skillId?.title || 'a skill'}</span></p>
                                             </div>
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-md ${req.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-md ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                                : req.status === 'rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400'
                                                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
                                                 }`}>
-                                                {req.status}
+                                                {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1) : ''}
                                             </span>
                                         </div>
-                                    )) : <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No outgoing requests.</p>
+                                    )) : <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">{loading ? 'Loading...' : 'No outgoing requests.'}</p>
                                 )}
                             </div>
                         </div>
