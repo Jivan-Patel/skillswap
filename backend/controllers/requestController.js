@@ -61,17 +61,27 @@ exports.getRequests = async (req, res) => {
         const requests = await Request.find({
             $or: [{ senderId: user._id }, { receiverId: user._id }]
         })
-            .populate('senderId', 'name location')
-            .populate('receiverId', 'name')
+            .populate('senderId', 'name email phone location')
+            .populate('receiverId', 'name email phone location')
             .populate('skillId', 'title level category')
             .sort({ createdAt: -1 });
 
-        const incomingRequests = requests.filter(
-            (request) => request.receiverId && request.receiverId._id.toString() === user._id.toString()
-        );
-        const outgoingRequests = requests.filter(
-            (request) => request.senderId && request.senderId._id.toString() === user._id.toString()
-        );
+        // Privacy: strip contact info from non-accepted requests
+        const sanitize = (request) => {
+            const r = request.toObject();
+            if (r.status !== 'accepted') {
+                if (r.senderId) { delete r.senderId.email; delete r.senderId.phone; }
+                if (r.receiverId) { delete r.receiverId.email; delete r.receiverId.phone; }
+            }
+            return r;
+        };
+
+        const incomingRequests = requests
+            .filter((request) => request.receiverId && request.receiverId._id.toString() === user._id.toString())
+            .map(sanitize);
+        const outgoingRequests = requests
+            .filter((request) => request.senderId && request.senderId._id.toString() === user._id.toString())
+            .map(sanitize);
 
         res.status(200).json({ incomingRequests, outgoingRequests });
     } catch (error) {

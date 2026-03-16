@@ -1,5 +1,6 @@
 import { Check, MapPin, X } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import ContactSection from './ContactSection';
 
 const LEVEL_STYLES = {
     Advanced: 'bg-teal-50 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400',
@@ -57,6 +58,10 @@ const IncomingRequestCard = ({ request, onUpdateStatus, isUpdating }) => {
                     Reject
                 </button>
             </div>
+
+            {request.status === 'accepted' && (
+                <ContactSection contact={request.senderId} partnerLabel="Connect with" />
+            )}
         </div>
     );
 };

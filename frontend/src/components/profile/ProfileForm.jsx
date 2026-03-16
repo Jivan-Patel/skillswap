@@ -4,7 +4,8 @@ const ProfileForm = ({ profile, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
         name: profile.name || '',
         bio: profile.bio || '',
-        location: profile.location || ''
+        location: profile.location || '',
+        phone: profile.phone || ''
     });
 
     const handleChange = (e) => {
@@ -43,6 +44,19 @@ const ProfileForm = ({ profile, onSave, onCancel }) => {
                         placeholder="e.g. San Francisco, Remote"
                         className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-800 p-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"
                     />
+                </div>
+
+                <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-600 dark:text-slate-300">Phone Number</label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+91 9876543210"
+                        className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-800 p-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"
+                    />
+                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Shared only with users whose skill requests you accept.</p>
                 </div>
 
                 <div>

@@ -1,4 +1,5 @@
 import StatusBadge from './StatusBadge';
+import ContactSection from './ContactSection';
 
 const LEVEL_STYLES = {
     Advanced: 'bg-teal-50 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400',
@@ -30,6 +31,10 @@ const OutgoingRequestCard = ({ request }) => {
                     {skillLevel}
                 </span>
             </div>
+
+            {request.status === 'accepted' && (
+                <ContactSection contact={request.receiverId} partnerLabel="Connect with" />
+            )}
         </div>
     );
 };
