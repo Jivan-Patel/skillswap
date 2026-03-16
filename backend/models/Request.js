@@ -16,6 +16,17 @@ const requestSchema = new mongoose.Schema({
         ref: 'Skill',
         required: true
     },
+    offeredSkill: {
+        name: {
+            type: String,
+            required: true
+        },
+        level: {
+            type: String,
+            enum: ['Beginner', 'Intermediate', 'Advanced'],
+            default: 'Beginner'
+        }
+    },
     status: {
         type: String,
         enum: ['pending', 'accepted', 'rejected'],

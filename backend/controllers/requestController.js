@@ -15,9 +15,10 @@ const getUserFromHeader = async (req) => {
 exports.createRequest = async (req, res) => {
     try {
         const sender = await getUserFromHeader(req);
-        const { skillId } = req.body;
+        const { skillId, offeredSkill } = req.body;
 
         if (!skillId) return res.status(400).json({ message: 'Skill ID is required' });
+        if (!offeredSkill?.name) return res.status(400).json({ message: 'offeredSkill with a name is required' });
 
         // Find the skill and its owner
         const skill = await Skill.findById(skillId);
@@ -40,7 +41,11 @@ exports.createRequest = async (req, res) => {
         const request = await Request.create({
             senderId: sender._id,
             receiverId: skill.userId,
-            skillId: skill._id
+            skillId: skill._id,
+            offeredSkill: {
+                name: offeredSkill.name,
+                level: offeredSkill.level || 'Beginner'
+            }
         });
 
         res.status(201).json(request);

@@ -41,6 +41,24 @@ exports.getAllSkills = async (req, res) => {
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 9));
         const skip = (page - 1) * limit;
 
+        // If ?userId= is provided, return all skills for that specific user
+        if (req.query.userId) {
+            const [skills, totalSkills] = await Promise.all([
+                Skill.find({ userId: req.query.userId })
+                    .populate('userId', 'name location')
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit),
+                Skill.countDocuments({ userId: req.query.userId })
+            ]);
+            return res.status(200).json({
+                skills,
+                currentPage: page,
+                totalPages: Math.ceil(totalSkills / limit) || 1,
+                totalSkills
+            });
+        }
+
         // Extract wanted skill names, lowercase and trimmed
         const wantedSkillNames = user.skillsWanted.map(s => s.name.trim().toLowerCase());
 

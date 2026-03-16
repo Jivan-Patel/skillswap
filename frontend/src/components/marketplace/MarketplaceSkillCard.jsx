@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { MapPin, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import RequestButton from './RequestButton';
+import ExchangeRequestModal from './ExchangeRequestModal';
 
 const levelColors = {
     Advanced: 'bg-teal-50 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400',
@@ -8,11 +10,27 @@ const levelColors = {
     Beginner: 'bg-gray-100 dark:bg-slate-500/20 text-gray-600 dark:text-slate-400',
 };
 
-const MarketplaceSkillCard = ({ skill, onRequest }) => {
+const MarketplaceSkillCard = ({ skill, onRequest, currentUserSkills = [] }) => {
     const user = skill.userId;
     const userName = user?.name || 'Unknown User';
     const userLocation = user?.location || '';
     const badgeClass = levelColors[skill.level] || levelColors.Beginner;
+    const [modalOpen, setModalOpen] = useState(false);
+
+    // If user document is missing (deleted), render a minimal card without crashing
+    if (!user) {
+        return (
+            <div className="group relative flex flex-col rounded-2xl border border-gray-200 dark:border-white/5 bg-white/60 dark:bg-slate-900/60 p-5 shadow-sm backdrop-blur-xl">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-500 mb-3">{skill.category || 'General'}</span>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{skill.title}</h3>
+                <span className={`text-xs px-2.5 py-0.5 rounded-full w-fit mb-3 ${badgeClass}`}>{skill.level}</span>
+            </div>
+        );
+    }
+
+    const handleModalSubmit = async (skillId, offeredSkill) => {
+        await onRequest(skillId, offeredSkill);
+    };
 
     return (
         <div className="group relative flex flex-col rounded-2xl border border-gray-200 dark:border-white/5 bg-white/60 dark:bg-slate-900/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-1">
@@ -52,9 +70,19 @@ const MarketplaceSkillCard = ({ skill, onRequest }) => {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                    <RequestButton onRequest={() => onRequest(skill._id)} />
+                    <RequestButton onRequest={() => setModalOpen(true)} />
                 </div>
             </div>
+
+            {/* Exchange Modal */}
+            {modalOpen && (
+                <ExchangeRequestModal
+                    skill={skill}
+                    mySkills={currentUserSkills}
+                    onClose={() => setModalOpen(false)}
+                    onSubmit={handleModalSubmit}
+                />
+            )}
         </div>
     );
 };

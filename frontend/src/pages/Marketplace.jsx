@@ -22,6 +22,7 @@ const Marketplace = () => {
     const [selectedLevel, setSelectedLevel] = useState('All');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [toast, setToast] = useState(null);
+    const [mySkills, setMySkills] = useState([]);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +58,14 @@ const Marketplace = () => {
         }
     }, [user?.email]);
 
+    // Fetch current user's offered skills once
+    useEffect(() => {
+        if (!user?.email) return;
+        axios.get('http://localhost:5000/api/users/me', config)
+            .then(({ data }) => setMySkills(data.skillsOffered || []))
+            .catch(() => {});
+    }, [user?.email]);
+
     useEffect(() => {
         fetchSkills(searchQuery, currentPage);
     }, [searchQuery, currentPage]);
@@ -82,10 +91,10 @@ const Marketplace = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleRequest = async (skillId) => {
+    const handleRequest = async (skillId, offeredSkill) => {
         const { data } = await axios.post(
             'http://localhost:5000/api/requests',
-            { skillId },
+            { skillId, offeredSkill },
             config
         );
         showToast('Request sent successfully!', 'success');
@@ -213,6 +222,7 @@ const Marketplace = () => {
                                     key={skill._id}
                                     skill={skill}
                                     onRequest={handleRequest}
+                                    currentUserSkills={mySkills}
                                 />
                             ))}
                         </div>
