@@ -6,8 +6,8 @@ import AddSkillModal from './AddSkillModal';
 const SkillsOffered = ({ skills, onAddSkill, onRemoveSkill }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleAdd = (skillName, level) => {
-        onAddSkill(skillName, level);
+    const handleAdd = (skillName, level, category) => {
+        onAddSkill(skillName, level, category);
         setIsModalOpen(false);
     };
 

@@ -35,12 +35,12 @@ const MarketplaceSkillCard = ({ skill, onRequest }) => {
             {/* Divider */}
             <div className="mt-auto border-t border-gray-100 dark:border-white/5 pt-4">
                 {/* User Info */}
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950">
+                <Link to={`/user/${user._id || user}`} className="flex items-center gap-3 mb-4 p-2 -ml-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group/user">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950 transition-transform group-hover/user:scale-105">
                         <UserIcon size={16} strokeWidth={2.5} />
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{userName}</p>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover/user:text-emerald-600 dark:group-hover/user:text-emerald-400 transition-colors">{userName}</p>
                         {userLocation && (
                             <p className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400">
                                 <MapPin size={11} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -48,7 +48,7 @@ const MarketplaceSkillCard = ({ skill, onRequest }) => {
                             </p>
                         )}
                     </div>
-                </div>
+                </Link>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">

@@ -2,15 +2,25 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
+const categories = [
+    'Web Development',
+    'Mobile Development',
+    'Data Science',
+    'Design',
+    'DevOps',
+    'Programming',
+    'General'
+];
 
 const AddSkillModal = ({ title, onClose, onSubmit }) => {
     const [skill, setSkill] = useState('');
     const [level, setLevel] = useState('Beginner');
+    const [category, setCategory] = useState('General');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (skill.trim()) {
-            onSubmit(skill.trim(), level);
+            onSubmit(skill.trim(), level, category);
         }
     };
 
@@ -55,7 +65,22 @@ const AddSkillModal = ({ title, onClose, onSubmit }) => {
                         </div>
                     </div>
 
-                    <div className="flex gap-3 pt-6">
+                    <div>
+                        <label className="mb-1.5 block text-sm font-semibold text-gray-600 dark:text-slate-400">Category</label>
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 p-3 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition appearance-none"
+                        >
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>
+                                    {cat}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
                         <button
                             onClick={onClose}
                             className="flex-1 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800/50 py-3 text-sm font-semibold text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
@@ -63,7 +88,7 @@ const AddSkillModal = ({ title, onClose, onSubmit }) => {
                             Cancel
                         </button>
                         <button
-                            onClick={() => onSubmit(skill, level)}
+                            onClick={() => onSubmit(skill, level, category)}
                             disabled={!skill.trim()}
                             className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-sky-400 py-3 text-sm font-bold text-white dark:text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                         >

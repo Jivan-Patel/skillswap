@@ -59,18 +59,18 @@ const Profile = () => {
         }
     };
 
-    const handleAddSkillOffered = async (skill, level) => {
+    const handleAddSkillOffered = async (skill, level, category) => {
         try {
-            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-offered', { skill, level }, config);
+            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-offered', { skill, level, category }, config);
             setProfile(data);
         } catch (err) {
             alert('Failed to add skill.');
         }
     };
 
-    const handleAddSkillWanted = async (skill, level) => {
+    const handleAddSkillWanted = async (skill, level, category) => {
         try {
-            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-wanted', { skill, level }, config);
+            const { data } = await axios.put('http://localhost:5000/api/users/add-skill-wanted', { skill, level, category }, config);
             setProfile(data);
         } catch (err) {
             alert('Failed to add skill.');

@@ -20,13 +20,15 @@ const SkillCard = ({ skill, onDelete, colorTone = 'emerald' }) => {
                     {skillLevel}
                 </span>
             </div>
-            <button
-                onClick={() => onDelete(skillName)}
-                className="p-1.5 text-gray-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100 mt-0.5"
-                title="Remove Skill"
-            >
-                <Trash2 size={16} />
-            </button>
+            {onDelete && (
+                <button
+                    onClick={() => onDelete(skillName)}
+                    className="p-1.5 text-gray-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100 mt-0.5"
+                    title="Remove Skill"
+                >
+                    <Trash2 size={16} />
+                </button>
+            )}
         </div>
     );
 };

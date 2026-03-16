@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Marketplace from './pages/Marketplace';
 import Requests from './pages/Requests';
+import PublicProfile from './pages/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Requests />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/:userId"
+        element={
+          <ProtectedRoute>
+            <PublicProfile />
           </ProtectedRoute>
         }
       />

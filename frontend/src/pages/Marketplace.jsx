@@ -198,9 +198,11 @@ const Marketplace = () => {
                 ) : filteredSkills.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-white/30 dark:bg-slate-900/30">
                         <Compass size={40} className="text-gray-400 dark:text-slate-600 mb-3" />
-                        <p className="text-gray-600 dark:text-slate-400 mb-1">No skills found</p>
-                        <p className="text-sm text-gray-400 dark:text-slate-500">
-                            {searchQuery ? 'Try a different search term or clear filters.' : 'No skills have been shared yet.'}
+                        <p className="text-gray-600 dark:text-slate-400 mb-1 font-medium text-lg">No matched skills found</p>
+                        <p className="text-sm text-gray-500 dark:text-slate-500 text-center max-w-md">
+                            {searchQuery 
+                                ? 'Try a different search term or clear filters.' 
+                                : 'We couldn\'t find any users currently offering the skills you want to learn. Try adding more skills to your Profile or use the search bar above to look around!'}
                         </p>
                     </div>
                 ) : (
