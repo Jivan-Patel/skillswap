@@ -44,11 +44,12 @@ exports.getPublicProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
     try {
         const user = await getUserFromHeader(req);
-        const { name, bio, location } = req.body;
+        const { name, bio, location, phone } = req.body;
 
         if (name !== undefined) user.name = name;
         if (bio !== undefined) user.bio = bio;
         if (location !== undefined) user.location = location;
+        if (phone !== undefined) user.phone = phone;
 
         await user.save();
         user.password = undefined;

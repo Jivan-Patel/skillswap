@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    phone: {
+        type: String,
+        default: ''
+    },
     skillsOffered: {
         type: [skillSchema],
         default: []
