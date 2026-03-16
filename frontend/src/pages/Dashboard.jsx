@@ -111,6 +111,10 @@ const Dashboard = () => {
                             <Settings size={18} />
                             Profile
                         </Link>
+                        <Link to="/requests" className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-medium text-gray-700 shadow-sm backdrop-blur-md transition hover:bg-white dark:border-white/10 dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/80">
+                            <Inbox size={18} />
+                            Requests
+                        </Link>
                     </div>
                 </div>
 

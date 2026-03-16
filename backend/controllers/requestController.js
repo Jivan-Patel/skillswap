@@ -61,12 +61,19 @@ exports.getRequests = async (req, res) => {
         const requests = await Request.find({
             $or: [{ senderId: user._id }, { receiverId: user._id }]
         })
-            .populate('senderId', 'name email')
-            .populate('receiverId', 'name email')
+            .populate('senderId', 'name location')
+            .populate('receiverId', 'name')
             .populate('skillId', 'title level category')
             .sort({ createdAt: -1 });
 
-        res.status(200).json(requests);
+        const incomingRequests = requests.filter(
+            (request) => request.receiverId && request.receiverId._id.toString() === user._id.toString()
+        );
+        const outgoingRequests = requests.filter(
+            (request) => request.senderId && request.senderId._id.toString() === user._id.toString()
+        );
+
+        res.status(200).json({ incomingRequests, outgoingRequests });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -89,6 +96,10 @@ exports.updateRequest = async (req, res) => {
         // Only the receiver can accept/reject
         if (request.receiverId.toString() !== user._id.toString()) {
             return res.status(403).json({ message: 'Only the skill owner can update the request status' });
+        }
+
+        if (request.status !== 'pending') {
+            return res.status(400).json({ message: 'Request status has already been finalized' });
         }
 
         request.status = status;
