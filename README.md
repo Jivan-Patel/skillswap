@@ -3,7 +3,14 @@
 ## 📌 Project Overview
 SkillSwap is a full-stack peer-to-peer learning platform that helps users exchange skills with one another. Users can create profiles, showcase the skills they can teach, list the skills they want to learn, explore other members, and send exchange requests to start collaborative learning.
 
-The platform is designed to make learning more accessible, community-driven, and practical by connecting people who have complementary knowledge.
+The platform is designed to make learning more accessible, community-driven, and practical by connecting people who have complementary knowledge. The application is now live and accessible via the deployed links below.
+
+## 🌐 Live Demo
+
+**Frontend:** https://skillswap-five-green.vercel.app/  
+**Backend:** https://skillswap-3s9t.onrender.com  
+
+> ⚠️ **Note:** The backend is deployed on a free hosting service, so it may take **30–120 seconds** to respond on the first request due to server cold starts. Please wait briefly if the app takes time to load initially.
 
 ## ❗ Problem Statement
 Many people want to learn new skills but face barriers such as expensive courses, limited access to mentors, or lack of a supportive learning network. At the same time, many individuals already have valuable knowledge they are willing to share. Despite this, there is no simple and community-focused platform that helps people connect and exchange skills effectively.
@@ -54,6 +61,8 @@ SkillSwap solves this problem by providing a platform where users can teach what
 7. Users manage their ongoing activity through the dashboard and requests pages.
 
 ## ⚙️ Installation & Setup
+
+*Alternatively, you can access the live application using the [Live Demo](#-live-demo) links above without local setup.*
 
 ### 1. Clone the Repository
 ```bash
