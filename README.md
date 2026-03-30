@@ -9,6 +9,7 @@ The platform is designed to make learning more accessible, community-driven, and
 
 **Frontend:** https://skillswap-five-green.vercel.app/  
 **Backend:** https://skillswap-3s9t.onrender.com  
+**Demo Video:** https://youtu.be/OCD35fF72mY?si=YpnYoqYwIGnS1bOh  
 
 > ⚠️ **Note:** The backend is deployed on a free hosting service, so it may take **30–120 seconds** to respond on the first request due to server cold starts. Please wait briefly if the app takes time to load initially.
 
