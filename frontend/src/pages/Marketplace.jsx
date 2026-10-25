@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../api/client';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -32,7 +32,7 @@ const Marketplace = () => {
     const [totalSkills, setTotalSkills] = useState(0);
 
     // Fetch skills from API with server-side pagination, search, category, and level
-    const fetchSkills = useCallback(async (query = '', page = 1, level = 'All', category = 'All') => {
+    const fetchSkills = async (query = '', page = 1, level = 'All', category = 'All') => {
         try {
             setLoading(true);
             setError('');
@@ -65,7 +65,7 @@ const Marketplace = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     // Fetch current user's offered skills once
     useEffect(() => {
@@ -77,7 +77,7 @@ const Marketplace = () => {
 
     useEffect(() => {
         fetchSkills(searchQuery, currentPage, selectedLevel, selectedCategory);
-    }, [searchQuery, currentPage, selectedLevel, selectedCategory, fetchSkills]);
+    }, [searchQuery, currentPage, selectedLevel, selectedCategory]);
 
     const handleSearch = (query) => {
         setSearchQuery(query);

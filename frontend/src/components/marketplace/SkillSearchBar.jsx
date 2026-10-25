@@ -1,19 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 
 const SkillSearchBar = ({ onSearch }) => {
     const [query, setQuery] = useState('');
-    const timerRef = useRef(null);
 
     useEffect(() => {
         // Debounce: wait 300ms after user stops typing
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => {
+        const timer = setTimeout(() => {
             onSearch(query.trim());
         }, 300);
 
-        return () => clearTimeout(timerRef.current);
-    }, [query]);
+        return () => clearTimeout(timer);
+    }, [query, onSearch]);
 
     const handleClear = () => {
         setQuery('');

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../api/client';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -22,26 +22,26 @@ const Requests = () => {
     const [error, setError] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
 
-    const fetchRequests = useCallback(async () => {
+    useEffect(() => {
         if (!user?.email) return;
 
-        try {
-            setLoading(true);
-            setError('');
+        const fetchRequests = async () => {
+            try {
+                setLoading(true);
+                setError('');
 
-            const { data } = await api.get('/api/requests');
-            setIncomingRequests(data?.incomingRequests || []);
-            setOutgoingRequests(data?.outgoingRequests || []);
-        } catch {
-            setError('Failed to load requests. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    }, [user?.email]);
+                const { data } = await api.get('/api/requests');
+                setIncomingRequests(data?.incomingRequests || []);
+                setOutgoingRequests(data?.outgoingRequests || []);
+            } catch {
+                setError('Failed to load requests. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    useEffect(() => {
         fetchRequests();
-    }, [fetchRequests]);
+    }, [user?.email]);
 
     const handleUpdateStatus = async (requestId, status) => {
         try {
