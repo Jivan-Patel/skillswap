@@ -83,7 +83,7 @@ const AddSkillModal = ({ title, onClose, onSubmit }) => {
                         <button
                             onClick={() => onSubmit(skill, level, category)}
                             disabled={!skill.trim()}
-                            className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-sky-400 py-3 text-sm font-bold text-white dark:text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-sky-400 py-3 text-sm font-bold text-white dark:text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Add Skill
                         </button>

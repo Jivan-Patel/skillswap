@@ -81,7 +81,7 @@ const ProfileForm = ({ profile, onSave, onCancel }) => {
                     </button>
                     <button
                         type="submit"
-                        className="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-sky-400 px-6 py-2.5 font-semibold text-white dark:text-slate-950 shadow-sm transition hover:brightness-110"
+                        className="rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-sky-400 px-6 py-2.5 font-semibold text-white dark:text-slate-950 shadow-sm transition hover:brightness-110"
                     >
                         Save Changes
                     </button>

@@ -91,7 +91,7 @@ const Dashboard = () => {
                                         <span className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name || 'User'}</span>
                                         <span className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</span>
                                     </div>
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 to-sky-400 text-white shadow-sm">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-tr from-emerald-400 to-sky-400 text-white shadow-sm">
                                         <User size={18} />
                                     </div>
                                 </Link>
@@ -115,12 +115,12 @@ const Dashboard = () => {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                     <div>
                         <h1 className="font-[Space_Grotesk] text-4xl font-bold text-gray-900 dark:text-white">
-                            Welcome back, {user?.name?.split(' ')[0] || 'Jivan'} <span className="inline-block origin-[70%_70%] animate-wave">👋</span>
+                            Welcome back, {user?.name?.split(' ')[0] || 'Friend'} <span className="inline-block origin-[70%_70%] animate-wave">👋</span>
                         </h1>
                         <p className="mt-2 text-gray-600 dark:text-gray-400">Here's what's happening with your skills today.</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                        <Link to="/profile" className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-emerald-700 dark:from-emerald-400 dark:to-cyan-400 dark:text-slate-950 dark:hover:brightness-110">
+                        <Link to="/profile" className="flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-emerald-700 dark:from-emerald-400 dark:to-cyan-400 dark:text-slate-950 dark:hover:brightness-110">
                             <Plus size={18} />
                             Add Skill
                         </Link>

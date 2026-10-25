@@ -168,7 +168,7 @@ function Signup() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-xl bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-3 font-medium text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-xl bg-linear-to-r from-emerald-400 to-sky-400 px-4 py-3 font-medium text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isLoading ? 'Creating account...' : 'Sign up'}
           </button>

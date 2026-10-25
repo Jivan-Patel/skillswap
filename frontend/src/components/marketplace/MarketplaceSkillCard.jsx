@@ -54,7 +54,7 @@ const MarketplaceSkillCard = ({ skill, onRequest, currentUserSkills = [] }) => {
             <div className="mt-auto border-t border-gray-100 dark:border-white/5 pt-4">
                 {/* User Info */}
                 <Link to={`/user/${user._id || user}`} className="flex items-center gap-3 mb-4 p-2 -ml-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group/user">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950 transition-transform group-hover/user:scale-105">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950 transition-transform group-hover/user:scale-105">
                         <UserIcon size={16} strokeWidth={2.5} />
                     </div>
                     <div className="min-w-0 flex-1">

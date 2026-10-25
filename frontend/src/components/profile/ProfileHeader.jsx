@@ -7,7 +7,7 @@ const ProfileHeader = ({ profile, onEditClick }) => {
     return (
         <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-slate-900/60 p-8 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
             <div className="flex items-center gap-6">
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950 shadow-lg">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-emerald-400 to-sky-400 text-white dark:text-slate-950 shadow-lg">
                     <UserIcon size={40} strokeWidth={2.5} />
                 </div>
                 <div>
