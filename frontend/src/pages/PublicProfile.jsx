@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/client';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { ArrowLeft, MapPin, User as UserIcon, Sun, Moon, Briefcase, GraduationCap, CheckCircle, X } from 'lucide-react';
+import { ArrowLeft, MapPin, User as UserIcon, Sun, Moon, Briefcase, GraduationCap } from 'lucide-react';
 import SkillCard from '../components/profile/SkillCard';
 import ExchangeRequestModal from '../components/marketplace/ExchangeRequestModal';
 import { Helmet } from "react-helmet";
@@ -17,16 +18,13 @@ const PublicProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [mySkills, setMySkills] = useState([]);
-    const [marketplaceSkills, setMarketplaceSkills] = useState([]);
     const [modalSkill, setModalSkill] = useState(null);
-    const [toast, setToast] = useState(null);
-
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
-                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, { headers: { 'user-email': user?.email } });
+                const { data } = await api.get(`/api/users/${userId}`);
                 setProfile(data);
                 setError('');
             } catch {
@@ -39,28 +37,24 @@ const PublicProfile = () => {
         if (userId) {
             fetchProfile();
         }
-    }, [userId, user?.email]);
-
-    // Fetch marketplace Skill docs for this profile user (to get proper _id)
-    useEffect(() => {
-        if (!userId) return;
-        axios.get(`${import.meta.env.VITE_API_URL}/api/skills?userId=${userId}&limit=50`, { headers: { 'user-email': user?.email } })
-            .then(({ data }) => setMarketplaceSkills(data.skills || []))
-            .catch(() => { });
-    }, [userId, user?.email]);
+    }, [userId]);
 
     // Fetch current user's offered skills for the exchange modal
     useEffect(() => {
         if (!user?.email) return;
-        axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, { headers: { 'user-email': user?.email } })
+        api.get('/api/users/me')
             .then(({ data }) => setMySkills(data.skillsOffered || []))
             .catch(() => { });
     }, [user?.email]);
 
     const handleRequest = async (skillId, offeredSkill) => {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/requests`, { skillId, offeredSkill }, { headers: { 'user-email': user?.email } });
-        setToast('Request sent successfully!');
-        setTimeout(() => setToast(null), 3000);
+        try {
+            await api.post('/api/requests', { skillId, offeredSkill });
+            toast.success('Request sent successfully!');
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to send request.';
+            toast.error(message);
+        }
     };
 
     if (loading) {
@@ -167,16 +161,18 @@ const PublicProfile = () => {
                         <div className="grid gap-3 sm:grid-cols-2">
                             {profile.skillsOffered && profile.skillsOffered.length > 0 ? (
                                 profile.skillsOffered.map((skill, idx) => {
-                                    // Find the matching Skill marketplace document
-                                    const mSkill = marketplaceSkills.find(
-                                        s => s.title.toLowerCase() === skill.name.toLowerCase()
-                                    );
+                                    const targetSkillId = skill.skillId || skill._id;
                                     return (
-                                        <div key={idx} className="relative">
+                                        <div key={targetSkillId || idx} className="relative">
                                             <SkillCard skill={skill} colorTone="emerald" />
-                                            {mSkill && user?._id !== userId && (
+                                            {targetSkillId && user?._id !== userId && (
                                                 <button
-                                                    onClick={() => setModalSkill(mSkill)}
+                                                    onClick={() => setModalSkill({
+                                                        _id: targetSkillId,
+                                                        title: skill.name,
+                                                        level: skill.level,
+                                                        category: skill.category
+                                                    })}
                                                     className="mt-2 w-full flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 transition"
                                                 >
                                                     Request Skill
@@ -228,20 +224,6 @@ const PublicProfile = () => {
                     onClose={() => setModalSkill(null)}
                     onSubmit={handleRequest}
                 />
-            )}
-
-            {/* Toast */}
-            {toast && (
-                <div className="fixed bottom-6 right-6 z-200 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-white dark:bg-slate-900/95 px-5 py-3.5 shadow-2xl backdrop-blur-xl animate-fade-in">
-                    <CheckCircle size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-slate-200">{toast}</span>
-                    <button
-                        onClick={() => setToast(null)}
-                        className="ml-2 rounded-full p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                    >
-                        <X size={14} />
-                    </button>
-                </div>
             )}
         </div>
     );

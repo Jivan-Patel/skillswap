@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Helmet } from "react-helmet";
+import api from '../api/client';
 
 const initialFormData = {
   email: '',
@@ -51,31 +52,12 @@ function Login() {
       setIsLoading(true)
       setAlert({ type: '', message: '' })
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
+      const { data } = await api.post('/api/auth/login', {
+        email: formData.email.trim(),
+        password: formData.password,
       })
 
-      let payload = null
-      try {
-        payload = await response.json()
-      } catch {
-        payload = null
-      }
-
-      if (!response.ok) {
-        const message = payload?.message || 'Login failed. Please check your credentials.'
-        throw new Error(message)
-      }
-
-      const user = payload || null
-      login(user)
+      login(data)
       setAlert({ type: 'success', message: 'Login successful. Redirecting...' })
       setFormData(initialFormData)
 
@@ -83,7 +65,8 @@ function Login() {
         navigate('/')
       }, 700)
     } catch (error) {
-      setAlert({ type: 'error', message: error.message || 'Unable to login.' })
+      const message = error.response?.data?.message || error.message || 'Unable to login.'
+      setAlert({ type: 'error', message })
     } finally {
       setIsLoading(false)
     }

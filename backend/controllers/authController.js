@@ -53,7 +53,7 @@ const login = async (req, res) => {
         }
 
         // Check for user email and verify plain text password
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select('+password');
 
         if (user && user.password === password) {
             res.json({

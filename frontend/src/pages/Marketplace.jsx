@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from 'react';
+import api from '../api/client';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { ArrowLeft, LogOut, Compass, Loader2, AlertCircle, CheckCircle, X, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, LogOut, Compass, Loader2, AlertCircle, Sun, Moon } from 'lucide-react';
 
 import SkillSearchBar from '../components/marketplace/SkillSearchBar';
 import SkillFilters from '../components/marketplace/SkillFilters';
@@ -23,7 +24,6 @@ const Marketplace = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('All');
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const [toast, setToast] = useState(null);
     const [mySkills, setMySkills] = useState([]);
 
     // Pagination state
@@ -31,46 +31,53 @@ const Marketplace = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalSkills, setTotalSkills] = useState(0);
 
-    const config = useMemo(() => ({
-        headers: {
-            'user-email': user?.email
-        }
-    }), [user?.email]);
-
-    // Fetch skills from API with pagination
-    const fetchSkills = useCallback(async (query = '', page = 1) => {
+    // Fetch skills from API with server-side pagination, search, category, and level
+    const fetchSkills = useCallback(async (query = '', page = 1, level = 'All', category = 'All') => {
         try {
             setLoading(true);
             setError('');
-            const baseUrl = query
-                ? `${import.meta.env.VITE_API_URL}/api/skills/search?query=${encodeURIComponent(query)}`
-                : `${import.meta.env.VITE_API_URL}/api/skills`;
-            const separator = query ? '&' : '?';
-            const url = `${baseUrl}${separator}page=${page}&limit=${LIMIT}`;
 
-            const { data } = await axios.get(url, config);
-            setSkills(data.skills);
-            setCurrentPage(data.currentPage);
-            setTotalPages(data.totalPages);
-            setTotalSkills(data.totalSkills);
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(LIMIT),
+            });
+
+            if (query.trim()) {
+                params.append('query', query.trim());
+            }
+            if (level !== 'All') {
+                params.append('level', level);
+            }
+            if (category !== 'All') {
+                params.append('category', category);
+            }
+
+            const endpoint = query.trim() ? '/api/skills/search' : '/api/skills';
+            const url = `${endpoint}?${params.toString()}`;
+
+            const { data } = await api.get(url);
+            setSkills(data.skills || []);
+            setCurrentPage(data.currentPage || 1);
+            setTotalPages(data.totalPages || 1);
+            setTotalSkills(data.totalSkills || 0);
         } catch {
             setError('Failed to load skills. Please try again.');
         } finally {
             setLoading(false);
         }
-    }, [user?.email]);
+    }, []);
 
     // Fetch current user's offered skills once
     useEffect(() => {
         if (!user?.email) return;
-        axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, config)
+        api.get('/api/users/me')
             .then(({ data }) => setMySkills(data.skillsOffered || []))
             .catch(() => { });
     }, [user?.email]);
 
     useEffect(() => {
-        fetchSkills(searchQuery, currentPage);
-    }, [searchQuery, currentPage, fetchSkills]);
+        fetchSkills(searchQuery, currentPage, selectedLevel, selectedCategory);
+    }, [searchQuery, currentPage, selectedLevel, selectedCategory, fetchSkills]);
 
     const handleSearch = (query) => {
         setSearchQuery(query);
@@ -94,26 +101,16 @@ const Marketplace = () => {
     };
 
     const handleRequest = async (skillId, offeredSkill) => {
-        const { data } = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/requests`,
-            { skillId, offeredSkill },
-            config
-        );
-        showToast('Request sent successfully!', 'success');
-        return data;
+        try {
+            const { data } = await api.post('/api/requests', { skillId, offeredSkill });
+            toast.success('Request sent successfully!');
+            return data;
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to send request.';
+            toast.error(message);
+            throw err;
+        }
     };
-
-    const showToast = (message, type = 'success') => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
-    };
-
-    // Client-side filtering (level & category)
-    const filteredSkills = skills.filter((skill) => {
-        if (selectedLevel !== 'All' && skill.level !== selectedLevel) return false;
-        if (selectedCategory !== 'All' && skill.category !== selectedCategory) return false;
-        return true;
-    });
 
     return (
         <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'dark bg-slate-950 text-slate-200' : 'bg-gray-50 text-gray-900'} font-sans selection:bg-emerald-500/30 pb-20`}>
@@ -210,26 +207,26 @@ const Marketplace = () => {
                         <AlertCircle size={40} className="text-rose-600 dark:text-rose-400 mb-3" />
                         <p className="text-rose-600 dark:text-rose-400 mb-2">{error}</p>
                         <button
-                            onClick={() => fetchSkills(searchQuery, currentPage)}
+                            onClick={() => fetchSkills(searchQuery, currentPage, selectedLevel, selectedCategory)}
                             className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium"
                         >
                             Try Again
                         </button>
                     </div>
-                ) : filteredSkills.length === 0 ? (
+                ) : skills.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-white/30 dark:bg-slate-900/30">
                         <Compass size={40} className="text-gray-400 dark:text-slate-600 mb-3" />
-                        <p className="text-gray-600 dark:text-slate-400 mb-1 font-medium text-lg">No matched skills found</p>
+                        <p className="text-gray-600 dark:text-slate-400 mb-1 font-medium text-lg">No skills found</p>
                         <p className="text-sm text-gray-500 dark:text-slate-500 text-center max-w-md">
-                            {searchQuery
-                                ? 'Try a different search term or clear filters.'
-                                : 'We couldn\'t find any users currently offering the skills you want to learn. Try adding more skills to your Profile or use the search bar above to look around!'}
+                            {searchQuery || selectedLevel !== 'All' || selectedCategory !== 'All'
+                                ? 'No skills match your search or filter criteria. Try clearing some filters or searching for something else.'
+                                : 'No skills are currently listed in the marketplace. Check back soon or be the first to share one!'}
                         </p>
                     </div>
                 ) : (
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredSkills.map((skill) => (
+                            {skills.map((skill) => (
                                 <MarketplaceSkillCard
                                     key={skill._id}
                                     skill={skill}
@@ -248,31 +245,6 @@ const Marketplace = () => {
                     </>
                 )}
             </main>
-
-            {/* Toast */}
-            {toast && (
-                <div className="fixed bottom-6 right-6 z-[200] flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-white dark:bg-slate-900/95 px-5 py-3.5 shadow-2xl shadow-emerald-500/10 backdrop-blur-xl animate-slide-up">
-                    <CheckCircle size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-slate-200">{toast.message}</span>
-                    <button
-                        onClick={() => setToast(null)}
-                        className="ml-2 rounded-full p-1 text-gray-500 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
-                    >
-                        <X size={14} />
-                    </button>
-                </div>
-            )}
-
-            {/* Inline animation keyframes */}
-            <style>{`
-                @keyframes slide-up {
-                    from { opacity: 0; transform: translateY(16px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-slide-up {
-                    animation: slide-up 0.3s ease-out;
-                }
-            `}</style>
         </div>
     );
 };

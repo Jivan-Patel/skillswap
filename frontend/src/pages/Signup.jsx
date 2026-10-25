@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Helmet } from "react-helmet";
+import api from '../api/client';
 
 const initialFormData = {
   name: '',
@@ -62,37 +63,20 @@ function Signup() {
       setIsLoading(true)
       setAlert({ type: '', message: '' })
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
+      const { data } = await api.post('/api/auth/signup', {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
       })
 
-      let payload = null
-      try {
-        payload = await response.json()
-      } catch {
-        payload = null
-      }
-
-      if (!response.ok) {
-        const message = payload?.message || 'Signup failed. Please try again.'
-        throw new Error(message)
-      }
-
-      setAlert({ type: 'success', message: payload?.message || 'Account created successfully. Please log in.' })
+      setAlert({ type: 'success', message: data?.message || 'Account created successfully. Please log in.' })
       setFormData(initialFormData)
       setTimeout(() => {
         navigate('/login')
       }, 900)
     } catch (error) {
-      setAlert({ type: 'error', message: error.message || 'Unable to create account.' })
+      const message = error.response?.data?.message || error.message || 'Unable to create account.'
+      setAlert({ type: 'error', message })
     } finally {
       setIsLoading(false)
     }

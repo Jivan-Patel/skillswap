@@ -6,7 +6,7 @@ import {
     LogOut, User, Sun, Moon, Plus, Compass, Settings,
     BookOpen, Target, Send, Inbox
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/client';
 import { Helmet } from "react-helmet";
 
 const Dashboard = () => {
@@ -23,11 +23,10 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             if (!user?.email) return;
             try {
-                const config = { headers: { 'user-email': user.email } };
                 // Fetch both profile and requests concurrently
                 const [profileRes, requestsRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, config),
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/requests`, config)
+                    api.get('/api/users/me'),
+                    api.get('/api/requests')
                 ]);
 
                 setFullProfile(profileRes.data);
@@ -268,23 +267,6 @@ const Dashboard = () => {
                     </div>
                 </div>
             </main>
-
-            {/* Custom Animation for Wave */}
-            <style>{`
-                @keyframes wave {
-                    0% { transform: rotate(0.0deg) }
-                    10% { transform: rotate(14.0deg) }
-                    20% { transform: rotate(-8.0deg) }
-                    30% { transform: rotate(14.0deg) }
-                    40% { transform: rotate(-4.0deg) }
-                    50% { transform: rotate(10.0deg) }
-                    60% { transform: rotate(0.0deg) }
-                    100% { transform: rotate(0.0deg) }
-                }
-                .animate-wave {
-                    animation: wave 2s infinite;
-                }
-            `}</style>
         </div>
     );
 };

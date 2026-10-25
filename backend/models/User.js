@@ -14,7 +14,7 @@ const skillSchema = new mongoose.Schema({
         type: String,
         default: 'General'
     }
-}, { _id: false });
+});
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Please add a password']
+        required: [true, 'Please add a password'],
+        select: false
     },
     bio: {
         type: String,

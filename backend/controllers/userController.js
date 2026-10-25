@@ -18,9 +18,19 @@ const getUserFromHeader = async (req) => {
 // GET /api/users/me -> Return the current user's profile.
 exports.getUserProfile = async (req, res) => {
     try {
-        const user = await getUserFromHeader(req);
-        // Exclude password
-        user.password = undefined;
+        const userObj = await getUserFromHeader(req);
+        const user = userObj.toObject();
+
+        // Attach corresponding Skill document _id to each offered skill
+        const marketplaceSkills = await Skill.find({ userId: user._id });
+        const skillMap = new Map();
+        marketplaceSkills.forEach(s => skillMap.set(s.title.toLowerCase(), s._id));
+
+        user.skillsOffered = (user.skillsOffered || []).map(s => ({
+            ...s,
+            skillId: skillMap.get(s.name.toLowerCase()) || s._id
+        }));
+
         res.status(200).json(user);
     } catch (error) {
         res.status(401).json({ message: error.message });
@@ -30,10 +40,21 @@ exports.getUserProfile = async (req, res) => {
 // GET /api/users/:userId -> Return a user's public profile.
 exports.getPublicProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.params.userId).select('-password -email');
+        const user = await User.findById(req.params.userId).select('-password -email').lean();
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        // Attach corresponding Skill document _id to each offered skill
+        const marketplaceSkills = await Skill.find({ userId: user._id });
+        const skillMap = new Map();
+        marketplaceSkills.forEach(s => skillMap.set(s.title.toLowerCase(), s._id));
+
+        user.skillsOffered = (user.skillsOffered || []).map(s => ({
+            ...s,
+            skillId: skillMap.get(s.name.toLowerCase()) || s._id
+        }));
+
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: 'Invalid user ID or user not found' });
@@ -52,7 +73,6 @@ exports.updateUserProfile = async (req, res) => {
         if (phone !== undefined) user.phone = phone;
 
         await user.save();
-        user.password = undefined;
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -81,7 +101,6 @@ exports.addSkillOffered = async (req, res) => {
             );
         }
 
-        user.password = undefined;
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -103,7 +122,6 @@ exports.addSkillWanted = async (req, res) => {
             await user.save();
         }
 
-        user.password = undefined;
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -125,7 +143,6 @@ exports.removeSkill = async (req, res) => {
         // Remove from the Skill collection so it no longer appears in the Marketplace
         await Skill.deleteMany({ userId: user._id, title: skillName });
 
-        user.password = undefined;
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({ message: error.message });

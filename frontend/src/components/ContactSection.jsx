@@ -1,19 +1,30 @@
 import { useState } from 'react';
 import { Mail, Phone, Copy, CheckCheck, MessageCircle } from 'lucide-react';
 
-// Prepend +91 if the number doesn't already have a country code
-const normalizePhone = (phone) => {
-    const digits = phone.replace(/\D/g, '');
-    // Already has country code (91XXXXXXXXXX or +91...)
-    if (phone.trim().startsWith('+')) return phone.trim();
-    if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`;
-    // 10-digit Indian number — add +91
-    return `+91 ${phone.trim()}`;
+// Clean phone representation for display and WhatsApp link
+const getPhoneDetails = (phone) => {
+    const raw = phone.trim();
+    const digits = raw.replace(/\D/g, '');
+
+    let whatsappDigits = digits;
+    let displayPhone = raw;
+
+    if (raw.startsWith('+')) {
+        whatsappDigits = digits;
+        displayPhone = raw;
+    } else if (digits.length === 10) {
+        whatsappDigits = `91${digits}`;
+        displayPhone = `+91 ${raw}`;
+    } else if (digits.length === 12 && digits.startsWith('91')) {
+        whatsappDigits = digits;
+        displayPhone = `+${digits.slice(0, 2)} ${digits.slice(2)}`;
+    }
+
+    return {
+        displayPhone,
+        whatsappUrl: `https://wa.me/${whatsappDigits}`
+    };
 };
-
-// Strip everything except digits for WhatsApp URL
-const sanitizePhone = (phone) => normalizePhone(phone).replace(/\D/g, '');
-
 
 const CopyButton = ({ text, label, successLabel }) => {
     const [copied, setCopied] = useState(false);
@@ -52,10 +63,8 @@ const ContactSection = ({ contact, partnerLabel = 'Connect with' }) => {
     if (!contact) return null;
 
     const { name, email, phone } = contact;
-    const hasPhone = phone && phone.trim().length > 0;
-    const displayPhone = hasPhone ? normalizePhone(phone) : '';
-    const sanitizedPhone = hasPhone ? sanitizePhone(phone) : '';
-    const whatsappUrl = `https://wa.me/${sanitizedPhone}`;
+    const hasPhone = Boolean(phone && phone.trim().length > 0);
+    const { displayPhone, whatsappUrl } = hasPhone ? getPhoneDetails(phone) : { displayPhone: '', whatsappUrl: '' };
 
     return (
         <div className="mt-4 animate-fade-in rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 transition-all duration-300 ease-out dark:border-emerald-500/20 dark:bg-emerald-500/5">

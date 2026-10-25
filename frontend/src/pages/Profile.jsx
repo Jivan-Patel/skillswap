@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import api from '../api/client';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { LogOut, User, ArrowLeft, Sun, Moon } from 'lucide-react';
+import { LogOut, ArrowLeft, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileForm from '../components/profile/ProfileForm';
 import SkillsOffered from '../components/profile/SkillsOffered';
 import SkillsWanted from '../components/profile/SkillsWanted';
-import Toast from '../components/profile/Toast';
 
 import { Helmet } from "react-helmet";
 
@@ -20,14 +20,11 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isEditing, setIsEditing] = useState(false);
-    const [toast, setToast] = useState(null);
-
-
 
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, { headers: { 'user-email': user?.email } });
+            const { data } = await api.get('/api/users/me');
             setProfile(data);
             setError('');
         } catch {
@@ -45,47 +42,46 @@ const Profile = () => {
 
     const handleUpdateProfile = async (formData) => {
         try {
-            const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/users/update`, formData, { headers: { 'user-email': user?.email } });
+            const { data } = await api.put('/api/users/update', formData);
             setProfile(data);
             setIsEditing(false);
 
             if (data.name !== user.name) {
                 login({ ...user, name: data.name });
             }
+            toast.success('Profile updated successfully');
         } catch {
-            alert('Failed to update profile.');
+            toast.error('Failed to update profile.');
         }
     };
 
     const handleAddSkillOffered = async (skill, level, category) => {
         try {
-            const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/users/add-skill-offered`, { skill, level, category }, { headers: { 'user-email': user?.email } });
+            const { data } = await api.put('/api/users/add-skill-offered', { skill, level, category });
             setProfile(data);
+            toast.success('Skill added successfully');
         } catch {
-            alert('Failed to add skill.');
+            toast.error('Failed to add skill.');
         }
     };
 
     const handleAddSkillWanted = async (skill, level, category) => {
         try {
-            const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/users/add-skill-wanted`, { skill, level, category }, { headers: { 'user-email': user?.email } });
+            const { data } = await api.put('/api/users/add-skill-wanted', { skill, level, category });
             setProfile(data);
+            toast.success('Desired skill added successfully');
         } catch {
-            alert('Failed to add skill.');
+            toast.error('Failed to add skill.');
         }
     };
 
-    const showToast = useCallback((message) => {
-        setToast(message);
-    }, []);
-
     const handleRemoveSkill = async (skillName) => {
         try {
-            const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/remove-skill/${encodeURIComponent(skillName)}`, { headers: { 'user-email': user?.email } });
+            const { data } = await api.delete(`/api/users/remove-skill/${encodeURIComponent(skillName)}`);
             setProfile(data);
-            showToast('Skill removed successfully');
+            toast.success('Skill removed successfully');
         } catch {
-            alert('Failed to remove skill.');
+            toast.error('Failed to remove skill.');
         }
     };
 
@@ -191,14 +187,6 @@ const Profile = () => {
                     />
                 </div>
             </main>
-
-            {/* Toast Notification */}
-            {toast && (
-                <Toast
-                    message={toast}
-                    onClose={() => setToast(null)}
-                />
-            )}
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -10,7 +11,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="bottom-right" reverseOrder={false} />
+      <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route
@@ -53,7 +56,8 @@ function App() {
           </ProtectedRoute>
         }
       />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

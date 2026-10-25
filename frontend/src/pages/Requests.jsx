@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/client';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, CheckCircle, Inbox, Loader2, LogOut, Moon, Sun, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Inbox, Loader2, LogOut, Moon, Sun } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -20,14 +21,6 @@ const Requests = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
-    const [toast, setToast] = useState(null);
-
-
-
-    const showToast = (message, type = 'success') => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
-    };
 
     const fetchRequests = useCallback(async () => {
         if (!user?.email) return;
@@ -36,7 +29,7 @@ const Requests = () => {
             setLoading(true);
             setError('');
 
-            const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/requests`, { headers: { 'user-email': user?.email } });
+            const { data } = await api.get('/api/requests');
             setIncomingRequests(data?.incomingRequests || []);
             setOutgoingRequests(data?.outgoingRequests || []);
         } catch {
@@ -54,10 +47,9 @@ const Requests = () => {
         try {
             setUpdatingId(requestId);
 
-            const { data } = await axios.put(
-                `${import.meta.env.VITE_API_URL}/api/requests/${requestId}`,
-                { status },
-                { headers: { 'user-email': user?.email } }
+            const { data } = await api.put(
+                `/api/requests/${requestId}`,
+                { status }
             );
 
             setIncomingRequests((prev) =>
@@ -68,10 +60,10 @@ const Requests = () => {
             );
 
             const actionLabel = status === 'accepted' ? 'accepted' : 'rejected';
-            showToast(`Request ${actionLabel} successfully.`, 'success');
+            toast.success(`Request ${actionLabel} successfully.`);
         } catch (err) {
             const message = err?.response?.data?.message || 'Failed to update request status.';
-            showToast(message, 'error');
+            toast.error(message);
         } finally {
             setUpdatingId(null);
         }
@@ -191,35 +183,6 @@ const Requests = () => {
                     </div>
                 )}
             </main>
-
-            {toast && (
-                <div className={`fixed bottom-6 right-6 z-200 flex items-center gap-3 rounded-xl border px-5 py-3.5 shadow-2xl backdrop-blur-xl animate-slide-up ${toast.type === 'error'
-                        ? 'border-rose-500/20 bg-white dark:bg-slate-900/95'
-                        : 'border-emerald-500/20 bg-white dark:bg-slate-900/95'
-                    }`}>
-                    <CheckCircle
-                        size={18}
-                        className={`shrink-0 ${toast.type === 'error' ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}
-                    />
-                    <span className="text-sm font-medium text-gray-900 dark:text-slate-200">{toast.message}</span>
-                    <button
-                        onClick={() => setToast(null)}
-                        className="ml-2 rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-white"
-                    >
-                        <X size={14} />
-                    </button>
-                </div>
-            )}
-
-            <style>{`
-                @keyframes slide-up {
-                    from { opacity: 0; transform: translateY(16px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-slide-up {
-                    animation: slide-up 0.3s ease-out;
-                }
-            `}</style>
         </div>
     );
 };

@@ -32,7 +32,7 @@ exports.createSkill = async (req, res) => {
     }
 };
 
-// GET /api/skills — Return paginated skills excluding the current user's. Defaults to showing MATCHES.
+// GET /api/skills — Return paginated skills excluding the current user's. Supports category, level, and optional recommendation matching.
 exports.getAllSkills = async (req, res) => {
     try {
         const user = await getUserFromHeader(req);
@@ -59,26 +59,34 @@ exports.getAllSkills = async (req, res) => {
             });
         }
 
-        // Extract wanted skill names, lowercase and trimmed
-        const wantedSkillNames = user.skillsWanted.map(s => s.name.trim().toLowerCase());
+        const filter = {
+            userId: { $ne: user._id }
+        };
 
-        // If user wants nothing, they get 0 matches in the default view
-        if (wantedSkillNames.length === 0) {
-            return res.status(200).json({
-                skills: [],
-                currentPage: page,
-                totalPages: 1,
-                totalSkills: 0
-            });
+        // Filter by category
+        if (req.query.category && req.query.category !== 'All') {
+            filter.category = req.query.category;
         }
 
-        // Build case-insensitive regex array for matching
-        const regexArray = wantedSkillNames.map(name => new RegExp(`^${name}$`, 'i'));
+        // Filter by level
+        if (req.query.level && req.query.level !== 'All') {
+            filter.level = req.query.level;
+        }
 
-        const filter = { 
-            userId: { $ne: user._id },
-            title: { $in: regexArray }
-        };
+        // Optional recommendation matching against user's skillsWanted
+        if (req.query.recommended === 'true') {
+            const wantedSkillNames = user.skillsWanted.map(s => s.name.trim().toLowerCase());
+            if (wantedSkillNames.length === 0) {
+                return res.status(200).json({
+                    skills: [],
+                    currentPage: page,
+                    totalPages: 1,
+                    totalSkills: 0
+                });
+            }
+            const regexArray = wantedSkillNames.map(name => new RegExp(`^${name}$`, 'i'));
+            filter.title = { $in: regexArray };
+        }
 
         const [skills, totalSkills] = await Promise.all([
             Skill.find(filter)
@@ -100,7 +108,7 @@ exports.getAllSkills = async (req, res) => {
     }
 };
 
-// GET /api/skills/search?query=react — Search skills with pagination
+// GET /api/skills/search?query=react — Search skills with pagination, category, and level
 exports.searchSkills = async (req, res) => {
     try {
         const user = await getUserFromHeader(req);
@@ -122,6 +130,16 @@ exports.searchSkills = async (req, res) => {
                 { description: regex }
             ]
         };
+
+        // Filter by category
+        if (req.query.category && req.query.category !== 'All') {
+            filter.category = req.query.category;
+        }
+
+        // Filter by level
+        if (req.query.level && req.query.level !== 'All') {
+            filter.level = req.query.level;
+        }
 
         const [skills, totalSkills] = await Promise.all([
             Skill.find(filter)
